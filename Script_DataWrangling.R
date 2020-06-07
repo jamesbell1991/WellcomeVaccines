@@ -9,92 +9,24 @@ library(readxl)
 library(readr)
 library(expss)
 library(hablar)
-
-
-
-# Functions used 
-
-
+library(forcats)
 
 
 # Download data in csv format from: https://wellcome.ac.uk/sites/default/files/wgm2018-dataset-crosstabs-all-countries.xlsx
 # Before uploading separate the data tab from the data dictionary and crosstabs
 
 # Data pathway and read-in data
-path_to_data <- here("Data", "WGM_Data.xlsx")
+path_to_data <- here("Data", "WGM_raw.xlsx")
 WGM_raw <- read_excel(path_to_data)
 WGM_raw <- as.data.frame(WGM_raw)
 
 # Change variable types 
 WGM_raw <- WGM_raw %>% 
-  convert(fct(WP5, Q1:Q30, WGM_Indexr, ViewOfScience, AgeCategories:Urban_Rural, Regions_Report:EMP_2010),
-          num(Age, wgt, PROJWT, WGM_Index, Household_Income, WBI),
+  convert(fct(WP5, Q1:Q30, WGM_Indexr, ViewOfScience, AgeCategories:Urban_Rural, Regions_Report:EMP_2010, Age),
+          num(wgt, PROJWT, WGM_Index, Household_Income, WBI),
           dte(FIELD_DATE)
   )
 
-# Add variable labels 
-WGM_raw <- apply_labels(WGM_raw, 
-                        WP5 = "Country", 
-                        wgt = "National weight", 
-                        PROJWT = "Population weight",
-                        FIELD_DATE = "Study completion date", 
-                        YEAR_CALENDAR = "Year of survey", 
-                        Q1 = "Knowledge of science", 
-                        Q2 = "Understanding of science definition", 
-                        Q3 = "Is studying disease part of science", 
-                        Q4 = "Is writing poetry part of science", 
-                        Q5A = "Primary science education", 
-                        Q5B = "Secondary science education", 
-                        Q5C = "Tertiary science education", 
-                        Q6 = "Science information seeking/ 30 days", 
-                        Q7 = "Medicine, disease health information seeking/ 30 days", 
-                        Q8 = "Would like to know more about science", 
-                        Q9 = "Would like to know more about medicine, disease, health", 
-                        Q10A = "Confidence in NGOs", 
-                        Q10B = "Confidence in hospitals and clinics", 
-                        Q11A = "Trust in people in neighbourhood", 
-                        Q11B = "Trust in national government", 
-                        Q11C = "Trust in scientists", 
-                        Q11D = "Trust in journalists", 
-                        Q11E = "Trust in doctors and nurses", 
-                        Q11F = "Trust in NGO staff", 
-                        Q11G = "Trust in traditional healers", 
-                        Q12 = "Trust in science", 
-                        Q13 = "Trust in scientists' accuracy", 
-                        Q14A = "Trust in scientists to benefit public", 
-                        Q14B = "Trust in scientists to be financially open", 
-                        Q15A = "Trust in companies to benefit public", 
-                        Q15B = "Trust in companies to be financially open", 
-                        Q16 = "Who the work of scientists benefits", 
-                        Q17 = "If work of scientists benefits them", 
-                        Q18 = "Benefit of science and technology for next generation", 
-                        Q19 = "Impact of science and technology on jobs", 
-                        Q20 = "Trust to give health advice", 
-                        Q21 = "Trust in medcial and health advice from gov", 
-                        Q22 = "Trust in medical and health advice from HCPs", 
-                        Q23 = "Awareness of vaccines", 
-                        Q24 = "Belief in importance of vaccines", 
-                        Q25 = "Belief in safety of vaccines", 
-                        Q26 = "Belief in effectiveness of vaccines", 
-                        Q27 = "Have children", 
-                        Q28 = "If any children received any vaccines", 
-                        D1 = "Religion", 
-                        Q29 = "Has science every disagreed with your religion", 
-                        Q30 = "Prioritise science or religion", 
-                        WGM_Index = "Trust in scientists index", 
-                        WGM_Indexr = "Trust in scientsits index cat", 
-                        ViewOfScience = "How a person views personal and social benefit of science", 
-                        Age = "Age", 
-                        AgeCategories = "Age cohort", 
-                        Gender = "Gender", 
-                        Education = "Educational background", 
-                        Urban_Rural = "Area type", 
-                        Household_Income = "Per capita income quintiles", 
-                        Regions_Report = "World regions", 
-                        WBI = "Country income level (World Bank)", 
-                        Subjective_Income = "Subjective income", 
-                        EMP_2010 = "Employment status"
-                        )
 
 # Code values 
 # Countries
@@ -423,4 +355,121 @@ WGM_raw$EMP_2010 <- recode_factor(WGM_raw$EMP_2010,
                                   "5"="Employed part time want full time",
                                   "6"="Out of workforce"
 )
+
+#Age
+WGM_raw$Age <- recode_factor(WGM_raw$Age, 
+                         "99"="99+", 
+                         "100"="NA")
+
+
+# Q3, Q4, Q6, Q7, Q8, Q9, Q10A, Q10B, Q17, Q18, Q23, Q24, Q28, D1, Q29 
+YesNo <- function(variable) {
+  recode_factor(variable, "1"="Yes", "2"="No", "98"="(DK)", "99"="(Refused)")
+}
+WGM_raw[c("Q3", "Q4", "Q6", "Q7", "Q8", "Q9", "Q10A", "Q10B", "Q17", "Q18", "Q23", "Q24", "Q28", "D1", "Q29")] <-
+  lapply(WGM_raw[c("Q3", "Q4", "Q6", "Q7", "Q8", "Q9", "Q10A", "Q10B", "Q17", "Q18", "Q23", "Q24", "Q28", "D1", "Q29")], YesNo)
+
+
+# Q5A, Q5B, Q5C
+SchoolType <- function(variable) {
+  recode_factor(variable, "1"="Yes", "2"="No", "97"="(Never attended this type of school)", "98"="(DK)", "99"="(Refused)")
+}
+WGM_raw[c("Q5A", "Q5B", "Q5C")] <-
+  lapply(WGM_raw[c("Q5A", "Q5B", "Q5C")], SchoolType)
+
+
+# Q11A, Q11B, Q11C, Q11D, Q11E, Q11F, Q11G, Q12, Q13, Q14A, Q14B, Q15A, Q15B, Q21, Q22
+TrustScale <- function(variable) {
+  recode_factor(variable, "1"="A lot", "2"="Some", "3"="Not much", "4"="Not at all", "98"="(DK)", "99"="(Refused)")
+}
+WGM_raw[c("Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q12", "Q13", "Q14A", "Q14B", "Q15A", "Q15B", "Q21", "Q22")] <-
+  lapply(WGM_raw[c("Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q12", "Q13", "Q14A", "Q14B", "Q15A", "Q15B", "Q21", "Q22")], TrustScale)
+
+
+# Q24, Q25, Q26
+AgreementScale <- function(variable) {
+  recode_factor(variable, "1"="Strongly agree", "2"="Somewhat agree", "3"="Neither agree nor disagree", "4"="Somewhat disagree", "5"="Strongly disagree", "99"="(DK)/(Refused)")
+}
+WGM_raw[c("Q24", "Q25", "Q26")] <-
+  lapply(WGM_raw[c("Q24", "Q25", "Q26")], AgreementScale)
+
+
+
+# Add variable labels 
+
+WGM_raw <- apply_labels(WGM_raw, 
+                        WP5 = "Country", 
+                        wgt = "National weight", 
+                        PROJWT = "Population weight",
+                        FIELD_DATE = "Study completion date", 
+                        YEAR_CALENDAR = "Year of survey", 
+                        Q1 = "Knowledge of science", 
+                        Q2 = "Understanding of science definition", 
+                        Q3 = "Is studying disease part of science", 
+                        Q4 = "Is writing poetry part of science", 
+                        Q5A = "Primary science education", 
+                        Q5B = "Secondary science education", 
+                        Q5C = "Tertiary science education", 
+                        Q6 = "Science information seeking/ 30 days", 
+                        Q7 = "Medicine, disease health information seeking/ 30 days", 
+                        Q8 = "Would like to know more about science", 
+                        Q9 = "Would like to know more about medicine, disease, health", 
+                        Q10A = "Confidence in NGOs", 
+                        Q10B = "Confidence in hospitals and clinics", 
+                        Q11A = "Trust in people in neighbourhood", 
+                        Q11B = "Trust in national government", 
+                        Q11C = "Trust in scientists", 
+                        Q11D = "Trust in journalists", 
+                        Q11E = "Trust in doctors and nurses", 
+                        Q11F = "Trust in NGO staff", 
+                        Q11G = "Trust in traditional healers", 
+                        Q12 = "Trust in science", 
+                        Q13 = "Trust in scientists' accuracy", 
+                        Q14A = "Trust in scientists to benefit public", 
+                        Q14B = "Trust in scientists to be financially open", 
+                        Q15A = "Trust in companies to benefit public", 
+                        Q15B = "Trust in companies to be financially open", 
+                        Q16 = "Who the work of scientists benefits", 
+                        Q17 = "If work of scientists benefits them", 
+                        Q18 = "Benefit of science and technology for next generation", 
+                        Q19 = "Impact of science and technology on jobs", 
+                        Q20 = "Trust to give health advice", 
+                        Q21 = "Trust in medcial and health advice from gov", 
+                        Q22 = "Trust in medical and health advice from HCPs", 
+                        Q23 = "Awareness of vaccines", 
+                        Q24 = "Belief in importance of vaccines", 
+                        Q25 = "Belief in safety of vaccines", 
+                        Q26 = "Belief in effectiveness of vaccines", 
+                        Q27 = "Have children", 
+                        Q28 = "If any children received any vaccines", 
+                        D1 = "Religion", 
+                        Q29 = "Has science every disagreed with your religion", 
+                        Q30 = "Prioritise science or religion", 
+                        WGM_Index = "Trust in scientists index", 
+                        WGM_Indexr = "Trust in scientsits index cat", 
+                        ViewOfScience = "How a person views personal and social benefit of science", 
+                        Age = "Age", 
+                        AgeCategories = "Age cohort", 
+                        Gender = "Gender", 
+                        Education = "Educational background", 
+                        Urban_Rural = "Area type", 
+                        Household_Income = "Per capita income quintiles", 
+                        Regions_Report = "World regions", 
+                        WBI = "Country income level (World Bank)", 
+                        Subjective_Income = "Subjective income", 
+                        EMP_2010 = "Employment status"
+                        )
+
+#Save as a csv
+WGM_coded <- here("data", "WGM_coded.csv")
+write_csv(WGM_raw, path = WGM_coded)
+
+
+#Save as RDS
+WGM_coded_rds <- here("data", "WGM_coded_rds.rds")
+saveRDS(WGM_raw, file = WGM_coded_rds)
+
+
+
+
 
