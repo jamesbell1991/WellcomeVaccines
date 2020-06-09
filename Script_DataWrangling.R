@@ -10,6 +10,7 @@ library(readr)
 library(expss)
 library(hablar)
 library(forcats)
+library(questionr)
 
 
 # Download data in csv format from: https://wellcome.ac.uk/sites/default/files/wgm2018-dataset-crosstabs-all-countries.xlsx
@@ -307,7 +308,6 @@ WGM_raw$Household_Income <- recode_factor(WGM_raw$Household_Income,
 )
 
 
-
 #Regions
 WGM_raw$Regions_Report <- recode_factor(WGM_raw$Regions_Report,
                                         "0"="Not assigned",
@@ -369,14 +369,12 @@ YesNo <- function(variable) {
 WGM_raw[c("Q3", "Q4", "Q6", "Q7", "Q8", "Q9", "Q10A", "Q10B", "Q17", "Q18", "Q23", "Q24", "Q28", "D1", "Q29")] <-
   lapply(WGM_raw[c("Q3", "Q4", "Q6", "Q7", "Q8", "Q9", "Q10A", "Q10B", "Q17", "Q18", "Q23", "Q24", "Q28", "D1", "Q29")], YesNo)
 
-
 # Q5A, Q5B, Q5C
 SchoolType <- function(variable) {
   recode_factor(variable, "1"="Yes", "2"="No", "97"="(Never attended this type of school)", "98"="(DK)", "99"="(Refused)")
 }
 WGM_raw[c("Q5A", "Q5B", "Q5C")] <-
   lapply(WGM_raw[c("Q5A", "Q5B", "Q5C")], SchoolType)
-
 
 # Q11A, Q11B, Q11C, Q11D, Q11E, Q11F, Q11G, Q12, Q13, Q14A, Q14B, Q15A, Q15B, Q21, Q22
 TrustScale <- function(variable) {
@@ -385,14 +383,12 @@ TrustScale <- function(variable) {
 WGM_raw[c("Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q12", "Q13", "Q14A", "Q14B", "Q15A", "Q15B", "Q21", "Q22")] <-
   lapply(WGM_raw[c("Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q12", "Q13", "Q14A", "Q14B", "Q15A", "Q15B", "Q21", "Q22")], TrustScale)
 
-
 # Q24, Q25, Q26
 AgreementScale <- function(variable) {
   recode_factor(variable, "1"="Strongly agree", "2"="Somewhat agree", "3"="Neither agree nor disagree", "4"="Somewhat disagree", "5"="Strongly disagree", "99"="(DK)/(Refused)")
 }
 WGM_raw[c("Q24", "Q25", "Q26")] <-
   lapply(WGM_raw[c("Q24", "Q25", "Q26")], AgreementScale)
-
 
 
 # Add variable labels 
@@ -468,6 +464,31 @@ write_csv(WGM_raw, path = WGM_coded)
 #Save as RDS
 WGM_coded_rds <- here("data", "WGM_coded_rds.rds")
 saveRDS(WGM_raw, file = WGM_coded_rds)
+
+
+# Subset data to variables of interest for analysis
+WGM_an <- WGM_raw %>% select(c("WP5", "wgt", "Q10A", "Q10B", "Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q20", "Q21", "Q22", "Q23", "Q24", "Q25", "Q26", "Q27", "Q28", "D1", "Q29", "Q30", "Age", "AgeCategories", "Gender", "Education", "Urban_Rural", "Household_Income"))
+
+# Recode into binary
+Binary <- function(variable) {
+  recode.na(variable, "(DK)", "(Refused)", "(DK)/(Refused)")
+}
+WGM_an[,c("Q10A", "Q10B", "Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q20", "Q21", "Q22", "Q23", "Q24", "Q25", "Q26", "Q27", "Q28", "D1", "Q29", "Q30", "Age", "AgeCategories", "Gender", "Education", "Urban_Rural", "Household_Income")]<- lapply(WGM_an[,c("Q10A", "Q10B", "Q11A", "Q11B", "Q11C", "Q11D", "Q11E", "Q11F", "Q11G", "Q20", "Q21", "Q22", "Q23", "Q24", "Q25", "Q26", "Q27", "Q28", "D1", "Q29", "Q30", "Age", "AgeCategories", "Gender", "Education", "Urban_Rural", "Household_Income")], Binary)
+
+#Save as a csv
+WGM_for_analysis <- here("data", "WGM_for_analysis.csv")
+write_csv(WGM_an, path = WGM_for_analysis)
+
+
+#Save as RDS
+WGM_for_analysis_rds <- here("data", "WGM_for_analysis_rds.rds")
+saveRDS(WGM_an, file = WGM_for_analysis_rds)
+
+
+
+
+
+
 
 
 
