@@ -1,0 +1,29 @@
+---
+title: "Vaccine coverage data"
+output: html_notebook
+---
+
+This notebook is to take WHO data on immunisation coverage over time and DHS data by country sub-region and plot them
+
+Download WHO data from: https://apps.who.int/immunization_monitoring/globalsummary/timeseries/tscoveragercv1.html
+
+Load packages 
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(readr)
+library(expss)
+library(hablar)
+library(forcats)
+library(questionr)
+```
+
+
+
+Import data: 
+```{r}
+path_to_data2 <- here("Data", "WHO_vaccine coverage (to upload).xls")
+WHO <- read_excel(path_to_data2)
+```
+
