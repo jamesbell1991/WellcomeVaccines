@@ -1,0 +1,111 @@
+---
+title: "Notebook_DescriptiveAnalysis"
+output: html_notebook
+---
+Load scripts
+```{r}
+library(here)
+library(survey)
+library(tidyverse)
+```
+Use the "for analysis" file created with the data wrangling script
+```{r}
+path_to_data <- here("Data", "WGM_for_analysis_rds.rds")
+WGM_an <- readRDS(path_to_data)
+```
+Set overall survey weights
+```{r}
+WGM_anSurveyDesign <- svydesign(
+  ids = ~1,
+  weights =  WGM_an$wgt, 
+  data = WGM_an
+)
+```
+##Uganda
+How many total respondents 
+```{r}
+nrow(filter(WGM_an, WP5 == "Uganda"))
+```
+How many respondents in Uganda who have children and know about vaccines
+```{r}
+nrow(filter(WGM_an, WP5 == "Uganda" & Q27 == "Yes" & Q23 == "Yes"))
+```
+Filter survey weights to Uganda
+```{r}
+Uganda_Design <- subset(WGM_anSurveyDesign, 
+                        WP5 == "Uganda" &
+                        Q27 == "Yes" &
+                        Q23 == "Yes"
+                        )
+```
+Age 
+```{r}
+Age_est_UG <- data.frame(svymean(~AgeCategories, Uganda_Design, na.rm= TRUE))
+Age_conf_UG <- confint(svymean(~AgeCategories, Uganda_Design, na.rm= TRUE))
+Age_frame_UG <- data.frame(estimate = Age_est_UG, 
+                        CI = Age_conf_UG)
+Age_frame_UG <- Age_frame_UG*100
+Age_frame_UG$estimate.mean <- round(Age_frame_UG$estimate.mean, 1)
+Age_est_labs <- c("15-29", "30-49", "50+")
+Age_frame_UG <- cbind(Age_frame_UG, Age_est_labs)
+
+Ageplot_UG <- ggplot(Age_frame_UG,
+       aes(x=Age_est_labs, y=estimate.mean)) +
+       geom_col(fill="cornflowerblue")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -8)+ 
+  labs(y="Percentage", x="Age group")+
+  ggtitle("Age Cohort")+
+  theme_minimal()
+print(Ageplot_UG)
+```
+Gender
+```{r}
+
+```
+Education
+```{r}
+
+```
+Setting 
+```{r}
+
+```
+Religion 
+```{r}
+
+```
+Income
+```{r}
+
+```
+Vaccination
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

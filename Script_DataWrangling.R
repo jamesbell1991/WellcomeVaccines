@@ -496,9 +496,42 @@ AgreementScale_bin <- function(variable) {
                Disagree = c("Neither agree nor disagree", "Somewhat disagree", "Strongly disagree")
   )
 }
+
 WGM_an[c("Q24", "Q25", "Q26")]<- 
   lapply(WGM_an[c("Q24", "Q25", "Q26")], AgreementScale_bin)
 
+# Re-establish labels 
+WGM_an <- apply_labels(WGM_an, 
+                       WP5 = "Country", 
+                       wgt = "National weight", 
+                       Q10A = "Confidence in NGOs", 
+                       Q10B = "Confidence in hospitals and clinics", 
+                       Q11A = "Trust in people in neighbourhood", 
+                       Q11B = "Trust in national government", 
+                       Q11C = "Trust in scientists", 
+                       Q11D = "Trust in journalists", 
+                       Q11E = "Trust in doctors and nurses", 
+                       Q11F = "Trust in NGO staff", 
+                       Q11G = "Trust in traditional healers", 
+                       Q20 = "Trust to give health advice", 
+                       Q21 = "Trust in medcial and health advice from gov", 
+                       Q22 = "Trust in medical and health advice from HCPs", 
+                       Q23 = "Awareness of vaccines", 
+                       Q24 = "Belief in importance of vaccines", 
+                       Q25 = "Belief in safety of vaccines", 
+                       Q26 = "Belief in effectiveness of vaccines", 
+                       Q27 = "Have children", 
+                       Q28 = "If any children received any vaccines", 
+                       D1 = "Religion", 
+                       Q29 = "Has science every disagreed with your religion", 
+                       Q30 = "Prioritise science or religion", 
+                       Age = "Age", 
+                       AgeCategories = "Age cohort", 
+                       Gender = "Gender", 
+                       Education = "Educational background", 
+                       Urban_Rural = "Area type", 
+                       Household_Income = "Per capita income quintiles" 
+)
 
 #Save as a csv
 WGM_for_analysis <- here("data", "WGM_for_analysis.csv")

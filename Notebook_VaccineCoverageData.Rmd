@@ -17,13 +17,30 @@ library(expss)
 library(hablar)
 library(forcats)
 library(questionr)
+library(reshape2)
 ```
-
-
-
-Import data: 
+Import data for time trend data 
 ```{r}
 path_to_data2 <- here("Data", "WHO_vaccine coverage (to upload).xls")
 WHO <- read_excel(path_to_data2)
+WHO<- as.data.frame((WHO))
 ```
+Reshape data
+```{r}
+WHO <- dcast(WHO, Cname + Year ~ Vaccine, value.var= "Percent_covrage")
+```
+
+NOT COMPLETED
+
+
+
+
+
+
+
+
+
+
+
+
 
