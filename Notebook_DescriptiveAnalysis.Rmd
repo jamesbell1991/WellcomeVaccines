@@ -7,6 +7,7 @@ Load scripts
 library(here)
 library(survey)
 library(tidyverse)
+library(ggplot2)
 ```
 Use the "for analysis" file created with the data wrangling script
 ```{r}
@@ -26,11 +27,11 @@ How many total respondents
 ```{r}
 nrow(filter(WGM_an, WP5 == "Uganda"))
 ```
-How many respondents in Uganda who have children and know about vaccines
+How many respondents in country who have children and know about vaccines
 ```{r}
 nrow(filter(WGM_an, WP5 == "Uganda" & Q27 == "Yes" & Q23 == "Yes"))
 ```
-Filter survey weights to Uganda
+Filter survey weights to country
 ```{r}
 Uganda_Design <- subset(WGM_anSurveyDesign, 
                         WP5 == "Uganda" &
@@ -53,42 +54,732 @@ Ageplot_UG <- ggplot(Age_frame_UG,
        aes(x=Age_est_labs, y=estimate.mean)) +
        geom_col(fill="cornflowerblue")+
   geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
-  geom_text(aes(label=estimate.mean), nudge_y = -8)+ 
-  labs(y="Percentage", x="Age group")+
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
   ggtitle("Age Cohort")+
-  theme_minimal()
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
 print(Ageplot_UG)
 ```
 Gender
 ```{r}
+Gender_est_UG <- data.frame(svymean(~Gender, Uganda_Design, na.rm= TRUE))
+Gender_conf_UG <- confint(svymean(~Gender, Uganda_Design, na.rm= TRUE))
+Gender_frame_UG <- data.frame(estimate = Gender_est_UG, CI = Gender_conf_UG)
+Gender_frame_UG <- Gender_frame_UG*100
+Gender_frame_UG$estimate.mean <- round(Gender_frame_UG$estimate.mean, 1)
+Gender_est_labs <- c("Male", "Female")
+Gender_frame_UG <- cbind(Gender_frame_UG, Gender_est_labs)
 
+Genderplot_UG <- ggplot(Gender_frame_UG,
+       aes(x=Gender_est_labs, y=estimate.mean)) +
+       geom_col(fill="cornflowerblue")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Gender")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Genderplot_UG)
 ```
 Education
 ```{r}
+Education_est_UG <- data.frame(svymean(~Education, Uganda_Design, na.rm= TRUE))
+Education_conf_UG <- confint(svymean(~Education, Uganda_Design, na.rm= TRUE))
+Education_frame_UG <- data.frame(estimate = Education_est_UG, 
+                        CI = Education_conf_UG)
+Education_frame_UG <- Education_frame_UG*100
+Education_frame_UG$estimate.mean <- round(Education_frame_UG$estimate.mean, 1)
+Education_est_labs <- c("Primary", "Secondary", "Tertiary")
+Education_frame_UG <- cbind(Education_frame_UG, Education_est_labs)
 
+Educationplot_UG <- ggplot(Education_frame_UG,
+       aes(x=Education_est_labs, y=estimate.mean)) +
+       geom_col(fill="cornflowerblue")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), 
+            position = position_dodge(width = 1),
+            vjust = -2,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ylim(0,100)+
+  ggtitle("Education")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Educationplot_UG)
 ```
 Setting 
 ```{r}
+Urban_Rural_est_UG <- data.frame(svymean(~Urban_Rural, Uganda_Design, na.rm= TRUE))
+Urban_Rural_conf_UG <- confint(svymean(~Urban_Rural, Uganda_Design, na.rm= TRUE))
+Urban_Rural_frame_UG <- data.frame(estimate = Urban_Rural_est_UG, 
+                        CI = Urban_Rural_conf_UG)
+Urban_Rural_frame_UG <- Urban_Rural_frame_UG*100
+Urban_Rural_frame_UG$estimate.mean <- round(Urban_Rural_frame_UG$estimate.mean, 1)
+Urban_Rural_est_labs <- c("Rural or small town", "City or suburb")
+Urban_Rural_frame_UG <- cbind(Urban_Rural_frame_UG, Urban_Rural_est_labs)
 
-```
-Religion 
-```{r}
-
+Urban_Ruralplot_UG <- ggplot(Urban_Rural_frame_UG,
+       aes(x=Urban_Rural_est_labs, y=estimate.mean)) +
+       geom_col(fill="cornflowerblue")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean),  position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Setting")+
+  theme_classic()+
+  ylim(0,120)+
+  theme(plot.title = element_text(size = 12))
+print(Urban_Ruralplot_UG)
 ```
 Income
 ```{r}
+Household_Income_est_UG <- data.frame(svymean(~Household_Income, Uganda_Design, na.rm= TRUE))
+Household_Income_conf_UG <- confint(svymean(~Household_Income, Uganda_Design, na.rm= TRUE))
+Household_Income_frame_UG <- data.frame(estimate = Household_Income_est_UG, 
+                        CI = Household_Income_conf_UG)
+Household_Income_frame_UG <- Household_Income_frame_UG*100
+Household_Income_frame_UG$estimate.mean <- round(Household_Income_frame_UG$estimate.mean, 1)
+Household_Income_est_labs <- c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%")
+Household_Income_frame_UG <- cbind(Household_Income_frame_UG, Household_Income_est_labs)
+Household_Income_frame_UG$Household_Income_est_labs <- factor(Household_Income_frame_UG$Household_Income_est_labs, level = c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%"))
+levels(Household_Income_frame_UG$Household_Income_est_labs) <- gsub(" ", "\n", levels(Household_Income_frame_UG$Household_Income_est_labs))
 
+Household_Incomeplot_UG <- ggplot(Household_Income_frame_UG,
+       aes(x=Household_Income_est_labs, y=estimate.mean)) +
+       geom_col(fill="cornflowerblue")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Income")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Household_Incomeplot_UG)
 ```
 Vaccination
 ```{r}
-
+svymean(~Q28, Uganda_Design, na.rm= TRUE)
+confint(svymean(~Q28, Uganda_Design, na.rm= TRUE))
 ```
+Multiplot function
+```{r}
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
 
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
 
+  numPlots = length(plots)
 
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
 
+ if (numPlots==1) {
+    print(plots[[1]])
 
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
 
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+```
+Put plots together 
+```{r}
+UG_plots <- multiplot(Ageplot_UG, Genderplot_UG, Educationplot_UG, Urban_Ruralplot_UG, Household_Incomeplot_UG, cols=2)
+```
+## Chad
+How many total respondents 
+```{r}
+nrow(filter(WGM_an, WP5 == "Chad"))
+```
+How many respondents in country who have children and know about vaccines
+```{r}
+nrow(filter(WGM_an, WP5 == "Chad" & Q27 == "Yes" & Q23 == "Yes"))
+```
+Filter survey weights to country
+```{r}
+Chad_Design <- subset(WGM_anSurveyDesign, 
+                        WP5 == "Chad" &
+                        Q27 == "Yes" &
+                        Q23 == "Yes"
+                        )
+```
+Age 
+```{r}
+Age_est_CH <- data.frame(svymean(~AgeCategories, Chad_Design, na.rm= TRUE))
+Age_conf_CH <- confint(svymean(~AgeCategories, Chad_Design, na.rm= TRUE))
+Age_frame_CH <- data.frame(estimate = Age_est_CH, 
+                        CI = Age_conf_CH)
+Age_frame_CH <- Age_frame_CH*100
+Age_frame_CH$estimate.mean <- round(Age_frame_CH$estimate.mean, 1)
+Age_est_labs <- c("15-29", "30-49", "50+")
+Age_frame_CH <- cbind(Age_frame_CH, Age_est_labs)
+
+Ageplot_CH <- ggplot(Age_frame_CH,
+       aes(x=Age_est_labs, y=estimate.mean)) +
+       geom_col(fill="lightsteelblue2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Age Cohort")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Ageplot_CH)
+```
+Gender
+```{r}
+Gender_est_CH <- data.frame(svymean(~Gender, Chad_Design, na.rm= TRUE))
+Gender_conf_CH <- confint(svymean(~Gender, Chad_Design, na.rm= TRUE))
+Gender_frame_CH <- data.frame(estimate = Gender_est_CH, CI = Gender_conf_CH)
+Gender_frame_CH <- Gender_frame_CH*100
+Gender_frame_CH$estimate.mean <- round(Gender_frame_CH$estimate.mean, 1)
+Gender_est_labs <- c("Male", "Female")
+Gender_frame_CH <- cbind(Gender_frame_CH, Gender_est_labs)
+
+Genderplot_CH <- ggplot(Gender_frame_CH,
+       aes(x=Gender_est_labs, y=estimate.mean)) +
+       geom_col(fill="lightsteelblue2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Gender")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Genderplot_CH)
+```
+Education
+```{r}
+Education_est_CH <- data.frame(svymean(~Education, Chad_Design, na.rm= TRUE))
+Education_conf_CH <- confint(svymean(~Education, Chad_Design, na.rm= TRUE))
+Education_frame_CH <- data.frame(estimate = Education_est_CH, 
+                        CI = Education_conf_CH)
+Education_frame_CH <- Education_frame_CH*100
+Education_frame_CH$estimate.mean <- round(Education_frame_CH$estimate.mean, 1)
+Education_est_labs <- c("Primary", "Secondary", "Tertiary")
+Education_frame_CH <- cbind(Education_frame_CH, Education_est_labs)
+
+Educationplot_CH <- ggplot(Education_frame_CH,
+       aes(x=Education_est_labs, y=estimate.mean)) +
+       geom_col(fill="lightsteelblue2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), 
+            position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ylim(0,120)+
+  ggtitle("Education")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Educationplot_CH)
+```
+Setting 
+```{r}
+Urban_Rural_est_CH <- data.frame(svymean(~Urban_Rural, Chad_Design, na.rm= TRUE))
+Urban_Rural_conf_CH <- confint(svymean(~Urban_Rural, Chad_Design, na.rm= TRUE))
+Urban_Rural_frame_CH <- data.frame(estimate = Urban_Rural_est_CH, 
+                        CI = Urban_Rural_conf_CH)
+Urban_Rural_frame_CH <- Urban_Rural_frame_CH*100
+Urban_Rural_frame_CH$estimate.mean <- round(Urban_Rural_frame_CH$estimate.mean, 1)
+Urban_Rural_est_labs <- c("Rural or small town", "City or suburb")
+Urban_Rural_frame_CH <- cbind(Urban_Rural_frame_CH, Urban_Rural_est_labs)
+
+Urban_Ruralplot_CH <- ggplot(Urban_Rural_frame_CH,
+       aes(x=Urban_Rural_est_labs, y=estimate.mean)) +
+       geom_col(fill="lightsteelblue2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean),  position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Setting")+
+  theme_classic()+
+  ylim(0,120)+
+  theme(plot.title = element_text(size = 12))
+print(Urban_Ruralplot_CH)
+```
+Income
+```{r}
+Household_Income_est_CH <- data.frame(svymean(~Household_Income, Chad_Design, na.rm= TRUE))
+Household_Income_conf_CH <- confint(svymean(~Household_Income, Chad_Design, na.rm= TRUE))
+Household_Income_frame_CH <- data.frame(estimate = Household_Income_est_CH, 
+                        CI = Household_Income_conf_CH)
+Household_Income_frame_CH <- Household_Income_frame_CH*100
+Household_Income_frame_CH$estimate.mean <- round(Household_Income_frame_CH$estimate.mean, 1)
+Household_Income_est_labs <- c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%")
+Household_Income_frame_CH <- cbind(Household_Income_frame_CH, Household_Income_est_labs)
+Household_Income_frame_CH$Household_Income_est_labs <- factor(Household_Income_frame_CH$Household_Income_est_labs, level = c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%"))
+levels(Household_Income_frame_CH$Household_Income_est_labs) <- gsub(" ", "\n", levels(Household_Income_frame_CH$Household_Income_est_labs))
+
+Household_Incomeplot_CH <- ggplot(Household_Income_frame_CH,
+       aes(x=Household_Income_est_labs, y=estimate.mean)) +
+       geom_col(fill="lightsteelblue2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Income")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Household_Incomeplot_CH)
+```
+Vaccination
+```{r}
+svymean(~Q28, Chad_Design, na.rm= TRUE)
+confint(svymean(~Q28, Chad_Design, na.rm= TRUE))
+```
+Put plots together 
+```{r}
+CH_plots <- multiplot(Ageplot_CH, Genderplot_CH, Educationplot_CH, Urban_Ruralplot_CH, Household_Incomeplot_CH, cols=2)
+```
+## Brazil
+How many total respondents 
+```{r}
+nrow(filter(WGM_an, WP5 == "Brazil"))
+```
+How many respondents in Uganda who have children and know about vaccines
+```{r}
+nrow(filter(WGM_an, WP5 == "Brazil" & Q27 == "Yes" & Q23 == "Yes"))
+```
+Filter survey weights to Uganda
+```{r}
+Brazil_Design <- subset(WGM_anSurveyDesign, 
+                        WP5 == "Brazil" &
+                        Q27 == "Yes" &
+                        Q23 == "Yes"
+                        )
+```
+Age 
+```{r}
+Age_est_BR <- data.frame(svymean(~AgeCategories, Brazil_Design, na.rm= TRUE))
+Age_conf_BR <- confint(svymean(~AgeCategories, Brazil_Design, na.rm= TRUE))
+Age_frame_BR <- data.frame(estimate = Age_est_BR, 
+                        CI = Age_conf_BR)
+Age_frame_BR <- Age_frame_BR*100
+Age_frame_BR$estimate.mean <- round(Age_frame_BR$estimate.mean, 1)
+Age_est_labs <- c("15-29", "30-49", "50+")
+Age_frame_BR <- cbind(Age_frame_BR, Age_est_labs)
+
+Ageplot_BR <- ggplot(Age_frame_BR,
+       aes(x=Age_est_labs, y=estimate.mean)) +
+       geom_col(fill="mediumpurple2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Age Cohort")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Ageplot_BR)
+```
+Gender
+```{r}
+Gender_est_BR <- data.frame(svymean(~Gender, Brazil_Design, na.rm= TRUE))
+Gender_conf_BR <- confint(svymean(~Gender, Brazil_Design, na.rm= TRUE))
+Gender_frame_BR <- data.frame(estimate = Gender_est_BR, CI = Gender_conf_BR)
+Gender_frame_BR <- Gender_frame_BR*100
+Gender_frame_BR$estimate.mean <- round(Gender_frame_BR$estimate.mean, 1)
+Gender_est_labs <- c("Male", "Female")
+Gender_frame_BR <- cbind(Gender_frame_BR, Gender_est_labs)
+
+Genderplot_BR <- ggplot(Gender_frame_BR,
+       aes(x=Gender_est_labs, y=estimate.mean)) +
+       geom_col(fill="mediumpurple2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Gender")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Genderplot_BR)
+```
+Education
+```{r}
+Education_est_BR <- data.frame(svymean(~Education, Brazil_Design, na.rm= TRUE))
+Education_conf_BR <- confint(svymean(~Education, Brazil_Design, na.rm= TRUE))
+Education_frame_BR <- data.frame(estimate = Education_est_BR, 
+                        CI = Education_conf_BR)
+Education_frame_BR <- Education_frame_BR*100
+Education_frame_BR$estimate.mean <- round(Education_frame_BR$estimate.mean, 1)
+Education_est_labs <- c("Primary", "Secondary", "Tertiary")
+Education_frame_BR <- cbind(Education_frame_BR, Education_est_labs)
+
+Educationplot_BR <- ggplot(Education_frame_BR,
+       aes(x=Education_est_labs, y=estimate.mean)) +
+       geom_col(fill="mediumpurple2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), 
+            position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ylim(0,100)+
+  ggtitle("Education")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Educationplot_BR)
+```
+Setting 
+```{r}
+Urban_Rural_est_BR <- data.frame(svymean(~Urban_Rural, Brazil_Design, na.rm= TRUE))
+Urban_Rural_conf_BR <- confint(svymean(~Urban_Rural, Brazil_Design, na.rm= TRUE))
+Urban_Rural_frame_BR <- data.frame(estimate = Urban_Rural_est_BR, 
+                        CI = Urban_Rural_conf_BR)
+Urban_Rural_frame_BR <- Urban_Rural_frame_BR*100
+Urban_Rural_frame_BR$estimate.mean <- round(Urban_Rural_frame_BR$estimate.mean, 1)
+Urban_Rural_est_labs <- c("Rural or small town", "City or suburb")
+Urban_Rural_frame_BR <- cbind(Urban_Rural_frame_BR, Urban_Rural_est_labs)
+
+Urban_Ruralplot_BR <- ggplot(Urban_Rural_frame_BR,
+       aes(x=Urban_Rural_est_labs, y=estimate.mean)) +
+       geom_col(fill="mediumpurple2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean),  position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Setting")+
+  theme_classic()+
+  ylim(0,100)+
+  theme(plot.title = element_text(size = 12))
+print(Urban_Ruralplot_BR)
+```
+Income
+```{r}
+Household_Income_est_BR <- data.frame(svymean(~Household_Income, Brazil_Design, na.rm= TRUE))
+Household_Income_conf_BR <- confint(svymean(~Household_Income, Brazil_Design, na.rm= TRUE))
+Household_Income_frame_BR <- data.frame(estimate = Household_Income_est_BR, 
+                        CI = Household_Income_conf_BR)
+Household_Income_frame_BR <- Household_Income_frame_BR*100
+Household_Income_frame_BR$estimate.mean <- round(Household_Income_frame_BR$estimate.mean, 1)
+Household_Income_est_labs <- c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%")
+Household_Income_frame_BR <- cbind(Household_Income_frame_BR, Household_Income_est_labs)
+Household_Income_frame_BR$Household_Income_est_labs <- factor(Household_Income_frame_BR$Household_Income_est_labs, level = c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%"))
+levels(Household_Income_frame_BR$Household_Income_est_labs) <- gsub(" ", "\n", levels(Household_Income_frame_BR$Household_Income_est_labs))
+
+Household_Incomeplot_BR <- ggplot(Household_Income_frame_CH,
+       aes(x=Household_Income_est_labs, y=estimate.mean)) +
+       geom_col(fill="mediumpurple2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Income")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Household_Incomeplot_BR)
+```
+Vaccination
+```{r}
+svymean(~Q28, Brazil_Design, na.rm= TRUE)
+confint(svymean(~Q28, Brazil_Design, na.rm= TRUE))
+```
+Put plots together 
+```{r}
+BR_plots <- multiplot(Ageplot_BR, Genderplot_BR, Educationplot_BR, Urban_Ruralplot_BR, Household_Incomeplot_BR, cols=2)
+```
+## Ethiopia
+How many total respondents 
+```{r}
+nrow(filter(WGM_an, WP5 == "Ethiopia"))
+```
+How many respondents in country who have children and know about vaccines
+```{r}
+nrow(filter(WGM_an, WP5 == "Ethiopia" & Q27 == "Yes" & Q23 == "Yes"))
+```
+Filter survey weights to country
+```{r}
+Ethiopia_Design <- subset(WGM_anSurveyDesign, 
+                        WP5 == "Ethiopia" &
+                        Q27 == "Yes" &
+                        Q23 == "Yes"
+                        )
+```
+Age 
+```{r}
+Age_est_ET <- data.frame(svymean(~AgeCategories, Ethiopia_Design, na.rm= TRUE))
+Age_conf_ET <- confint(svymean(~AgeCategories, Ethiopia_Design, na.rm= TRUE))
+Age_frame_ET <- data.frame(estimate = Age_est_ET, 
+                        CI = Age_conf_ET)
+Age_frame_ET <- Age_frame_ET*100
+Age_frame_ET$estimate.mean <- round(Age_frame_ET$estimate.mean, 1)
+Age_est_labs <- c("15-29", "30-49", "50+")
+Age_frame_ET <- cbind(Age_frame_ET, Age_est_labs)
+
+Ageplot_ET <- ggplot(Age_frame_ET,
+       aes(x=Age_est_labs, y=estimate.mean)) +
+       geom_col(fill="honeydew2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Age Cohort")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Ageplot_ET)
+```
+Gender
+```{r}
+Gender_est_ET <- data.frame(svymean(~Gender, Ethiopia_Design, na.rm= TRUE))
+Gender_conf_ET <- confint(svymean(~Gender, Ethiopia_Design, na.rm= TRUE))
+Gender_frame_ET <- data.frame(estimate = Gender_est_ET, CI = Gender_conf_ET)
+Gender_frame_ET <- Gender_frame_ET*100
+Gender_frame_ET$estimate.mean <- round(Gender_frame_ET$estimate.mean, 1)
+Gender_est_labs <- c("Male", "Female")
+Gender_frame_ET <- cbind(Gender_frame_ET, Gender_est_labs)
+
+Genderplot_ET <- ggplot(Gender_frame_ET,
+       aes(x=Gender_est_labs, y=estimate.mean)) +
+       geom_col(fill="honeydew2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Gender")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Genderplot_ET)
+```
+Education
+```{r}
+Education_est_ET <- data.frame(svymean(~Education, Ethiopia_Design, na.rm= TRUE))
+Education_conf_ET <- confint(svymean(~Education, Ethiopia_Design, na.rm= TRUE))
+Education_frame_ET <- data.frame(estimate = Education_est_ET, 
+                        CI = Education_conf_ET)
+Education_frame_ET <- Education_frame_ET*100
+Education_frame_ET$estimate.mean <- round(Education_frame_ET$estimate.mean, 1)
+Education_est_labs <- c("Primary", "Secondary", "Tertiary")
+Education_frame_ET <- cbind(Education_frame_ET, Education_est_labs)
+
+Educationplot_ET <- ggplot(Education_frame_ET,
+       aes(x=Education_est_labs, y=estimate.mean)) +
+       geom_col(fill="honeydew2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), 
+            position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ylim(0,120)+
+  ggtitle("Education")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Educationplot_ET)
+```
+Setting 
+```{r}
+Urban_Rural_est_ET <- data.frame(svymean(~Urban_Rural, Ethiopia_Design, na.rm= TRUE))
+Urban_Rural_conf_ET <- confint(svymean(~Urban_Rural, Ethiopia_Design, na.rm= TRUE))
+Urban_Rural_frame_ET <- data.frame(estimate = Urban_Rural_est_ET, 
+                        CI = Urban_Rural_conf_ET)
+Urban_Rural_frame_ET <- Urban_Rural_frame_ET*100
+Urban_Rural_frame_ET$estimate.mean <- round(Urban_Rural_frame_ET$estimate.mean, 1)
+Urban_Rural_est_labs <- c("Rural or small town", "City or suburb")
+Urban_Rural_frame_ET <- cbind(Urban_Rural_frame_ET, Urban_Rural_est_labs)
+
+Urban_Ruralplot_ET <- ggplot(Urban_Rural_frame_ET,
+       aes(x=Urban_Rural_est_labs, y=estimate.mean)) +
+       geom_col(fill="honeydew2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean),  position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Setting")+
+  theme_classic()+
+  ylim(0,120)+
+  theme(plot.title = element_text(size = 12))
+print(Urban_Ruralplot_ET)
+```
+Income
+```{r}
+Household_Income_est_ET <- data.frame(svymean(~Household_Income, Ethiopia_Design, na.rm= TRUE))
+Household_Income_conf_ET <- confint(svymean(~Household_Income, Ethiopia_Design, na.rm= TRUE))
+Household_Income_frame_ET <- data.frame(estimate = Household_Income_est_ET, 
+                        CI = Household_Income_conf_ET)
+Household_Income_frame_ET <- Household_Income_frame_ET*100
+Household_Income_frame_ET$estimate.mean <- round(Household_Income_frame_ET$estimate.mean, 1)
+Household_Income_est_labs <- c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%")
+Household_Income_frame_ET <- cbind(Household_Income_frame_ET, Household_Income_est_labs)
+Household_Income_frame_ET$Household_Income_est_labs <- factor(Household_Income_frame_ET$Household_Income_est_labs, level = c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%"))
+levels(Household_Income_frame_ET$Household_Income_est_labs) <- gsub(" ", "\n", levels(Household_Income_frame_ET$Household_Income_est_labs))
+
+Household_Incomeplot_ET <- ggplot(Household_Income_frame_CH,
+       aes(x=Household_Income_est_labs, y=estimate.mean)) +
+       geom_col(fill="honeydew2")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Income")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Household_Incomeplot_ET)
+```
+Vaccination
+```{r}
+svymean(~Q28, Ethiopia_Design, na.rm= TRUE)
+confint(svymean(~Q28, Ethiopia_Design, na.rm= TRUE))
+```
+Put plots together 
+```{r}
+ET_plots <- multiplot(Ageplot_ET, Genderplot_ET, Educationplot_ET, Urban_Ruralplot_ET, Household_Incomeplot_ET, cols=2)
+```
+## Philippines
+How many total respondents 
+```{r}
+nrow(filter(WGM_an, WP5 == "Philippines"))
+```
+How many respondents in country who have children and know about vaccines
+```{r}
+nrow(filter(WGM_an, WP5 == "Philippines" & Q27 == "Yes" & Q23 == "Yes"))
+```
+Filter survey weights to country
+```{r}
+PH_Design <- subset(WGM_anSurveyDesign, 
+                        WP5 == "Philippines" &
+                        Q27 == "Yes" &
+                        Q23 == "Yes"
+                        )
+```
+Age 
+```{r}
+Age_est_PH <- data.frame(svymean(~AgeCategories, PH_Design, na.rm= TRUE))
+Age_conf_PH <- confint(svymean(~AgeCategories, PH_Design, na.rm= TRUE))
+Age_frame_PH <- data.frame(estimate = Age_est_PH, 
+                        CI = Age_conf_PH)
+Age_frame_PH <- Age_frame_PH*100
+Age_frame_PH$estimate.mean <- round(Age_frame_PH$estimate.mean, 1)
+Age_est_labs <- c("15-29", "30-49", "50+")
+Age_frame_PH <- cbind(Age_frame_PH, Age_est_labs)
+
+Ageplot_PH <- ggplot(Age_frame_PH,
+       aes(x=Age_est_labs, y=estimate.mean)) +
+       geom_col(fill="gray78")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Age Cohort")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Ageplot_PH)
+```
+Gender
+```{r}
+Gender_est_PH <- data.frame(svymean(~Gender, PH_Design, na.rm= TRUE))
+Gender_conf_PH <- confint(svymean(~Gender, PH_Design, na.rm= TRUE))
+Gender_frame_PH <- data.frame(estimate = Gender_est_PH, CI = Gender_conf_PH)
+Gender_frame_PH <- Gender_frame_PH*100
+Gender_frame_PH$estimate.mean <- round(Gender_frame_PH$estimate.mean, 1)
+Gender_est_labs <- c("Male", "Female")
+Gender_frame_PH <- cbind(Gender_frame_PH, Gender_est_labs)
+
+Genderplot_PH <- ggplot(Gender_frame_PH,
+       aes(x=Gender_est_labs, y=estimate.mean)) +
+       geom_col(fill="gray78")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Gender")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Genderplot_PH)
+```
+Education
+```{r}
+Education_est_PH <- data.frame(svymean(~Education, PH_Design, na.rm= TRUE))
+Education_conf_PH <- confint(svymean(~Education, PH_Design, na.rm= TRUE))
+Education_frame_PH <- data.frame(estimate = Education_est_PH, 
+                        CI = Education_conf_PH)
+Education_frame_PH <- Education_frame_PH*100
+Education_frame_PH$estimate.mean <- round(Education_frame_PH$estimate.mean, 1)
+Education_est_labs <- c("Primary", "Secondary", "Tertiary")
+Education_frame_PH <- cbind(Education_frame_PH, Education_est_labs)
+
+Educationplot_PH <- ggplot(Education_frame_PH,
+       aes(x=Education_est_labs, y=estimate.mean)) +
+       geom_col(fill="gray78")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), 
+            position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ylim(0,100)+
+  ggtitle("Education")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Educationplot_PH)
+```
+Setting 
+```{r}
+Urban_Rural_est_PH <- data.frame(svymean(~Urban_Rural, PH_Design, na.rm= TRUE))
+Urban_Rural_conf_PH <- confint(svymean(~Urban_Rural, PH_Design, na.rm= TRUE))
+Urban_Rural_frame_PH <- data.frame(estimate = Urban_Rural_est_PH, 
+                        CI = Urban_Rural_conf_PH)
+Urban_Rural_frame_PH <- Urban_Rural_frame_PH*100
+Urban_Rural_frame_PH$estimate.mean <- round(Urban_Rural_frame_PH$estimate.mean, 1)
+Urban_Rural_est_labs <- c("Rural or small town", "City or suburb")
+Urban_Rural_frame_PH <- cbind(Urban_Rural_frame_PH, Urban_Rural_est_labs)
+
+Urban_Ruralplot_PH <- ggplot(Urban_Rural_frame_PH,
+       aes(x=Urban_Rural_est_labs, y=estimate.mean)) +
+       geom_col(fill="gray78")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean),  position = position_dodge(width = 1),
+            vjust = -1,
+            size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Setting")+
+  theme_classic()+
+  ylim(0,100)+
+  theme(plot.title = element_text(size = 12))
+print(Urban_Ruralplot_PH)
+```
+Income
+```{r}
+Household_Income_est_PH <- data.frame(svymean(~Household_Income, PH_Design, na.rm= TRUE))
+Household_Income_conf_PH <- confint(svymean(~Household_Income, PH_Design, na.rm= TRUE))
+Household_Income_frame_PH <- data.frame(estimate = Household_Income_est_PH, 
+                        CI = Household_Income_conf_PH)
+Household_Income_frame_PH <- Household_Income_frame_PH*100
+Household_Income_frame_PH$estimate.mean <- round(Household_Income_frame_PH$estimate.mean, 1)
+Household_Income_est_labs <- c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%")
+Household_Income_frame_PH <- cbind(Household_Income_frame_PH, Household_Income_est_labs)
+Household_Income_frame_PH$Household_Income_est_labs <- factor(Household_Income_frame_PH$Household_Income_est_labs, level = c("Poorest 20%", "Second 20%", "Middle 20%", "Fourth 20%", "Top 20%"))
+levels(Household_Income_frame_PH$Household_Income_est_labs) <- gsub(" ", "\n", levels(Household_Income_frame_PH$Household_Income_est_labs))
+
+Household_Incomeplot_PH <- ggplot(Household_Income_frame_PH,
+       aes(x=Household_Income_est_labs, y=estimate.mean)) +
+       geom_col(fill="gray78")+
+  geom_errorbar(aes(ymin=CI.2.5.., ymax=CI.97.5..), width = .2)+ 
+  geom_text(aes(label=estimate.mean), nudge_y = -10, size=3)+ 
+  labs(y=" ", x=" ")+
+  ggtitle("Income")+
+  theme_classic()+
+  theme(plot.title = element_text(size = 12))
+print(Household_Incomeplot_PH)
+```
+Vaccination
+```{r}
+svymean(~Q28, PH_Design, na.rm= TRUE)
+confint(svymean(~Q28, PH_Design, na.rm= TRUE))
+```
+Put plots together 
+```{r}
+PH_plots <- multiplot(Ageplot_PH, Genderplot_PH, Educationplot_PH, Urban_Ruralplot_PH, Household_Incomeplot_PH, cols=2)
+```
 
 
 
